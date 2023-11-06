@@ -1,0 +1,13 @@
+version: '3'
+services:
+  myapp:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: phatphamm01/face-recognition-golang:latest
+    container_name: face-recognition-golang
+    ports:
+      # - "22:22"  # Sửa các cổng theo dự án của bạn
+      - "3008:3008"
+    # command: ./main
