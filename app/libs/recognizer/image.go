@@ -23,20 +23,16 @@ import (
 LoadImage Load an image from file
 */
 func (_this *Recognizer) LoadImage(Base64 string) (image.Image, error) {
-	data, err := base64.StdEncoding.DecodeString(Base64)
-	if err != nil {
-		fmt.Println("Lỗi khi giải mã Base64:", err)
-		return nil, err
-	}
+	fmt.Println(Base64[:100])
+	reader := base64.NewDecoder(base64.StdEncoding, bytes.NewBufferString(Base64))
 
-	img, err := imaging.Decode(bytes.NewReader([]byte(data)))
+	img, _, err := image.Decode(reader)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return img, nil
-
 }
 
 /*
