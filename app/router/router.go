@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Init(app *fiber.App) {
-	recognizeRouter.CreateRouter(app)
-	socketRouter.CreateRouter(app)
+func Init(app *fiber.Router) {
+	recognizeRouter.CreateRouter(*app)
+	socketRouter.CreateRouter(*app)
 }

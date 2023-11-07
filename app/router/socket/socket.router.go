@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func CreateRouter(app *fiber.App) {
+func CreateRouter(app fiber.Router) {
 	app.Use("/ws-recognize-record", func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {
 			return c.Next()

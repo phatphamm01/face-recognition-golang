@@ -16,10 +16,11 @@ func main() {
 
 	app.Use(cors.New())
 
+	r := app.Group("/face")
 	// Initialize default config (Assign the middleware to /metrics)
-	app.Get("/metrics", monitor.New())
+	r.Get("/metrics", monitor.New())
 	// Health check
-	app.Get("/", func(c *fiber.Ctx) error {
+	r.Get("/", func(c *fiber.Ctx) error {
 		return c.SendStatus(200)
 	})
 
@@ -34,7 +35,7 @@ func main() {
 	app.Use(logger.New(logger.Config{}))
 
 	// Initialize router
-	router.Init(app)
+	router.Init(&r)
 
 	defer app.Server().Shutdown()
 

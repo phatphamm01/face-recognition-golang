@@ -10,7 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func CreateRouter(app *fiber.App) {
+func CreateRouter(app fiber.Router) {
 	app.Post("/recognize", middleware.ValidateInput(validator.ValidateRecognize{}, true), func(c *fiber.Ctx) error {
 		input := c.Locals("input").(*validator.ValidateRecognize)
 
