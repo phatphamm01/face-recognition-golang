@@ -89,7 +89,7 @@ func RecognizeFace(recognizerData []recognizer.Data, image string) (*bool, error
 			result := false
 			return &result, nil
 		}
-		fmt.Println("err::")
+		fmt.Println("err::", err)
 		return nil, err
 	}
 
