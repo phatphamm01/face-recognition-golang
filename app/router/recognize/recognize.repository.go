@@ -2,95 +2,96 @@ package recognizeRouter
 
 import (
 	"context"
-	"face-recognition-golang/constants/path"
 	"face-recognition-golang/db"
 	"face-recognition-golang/db/collection"
 	"face-recognition-golang/libs/faceCustom"
 	"face-recognition-golang/libs/recognizer"
 	commonUtils "face-recognition-golang/utils/common"
+	"face-recognition-golang/utils/promise"
 	"face-recognition-golang/validator"
 	"fmt"
 	"image"
-	"strings"
+	"net/http"
 
-	"github.com/fogleman/gg"
 	"github.com/samber/lo"
 )
 
-func VerifiedHandler(DB *db.MongoDB, input *validator.ValidateRecognize) *string {
+func GetImageFromURL(url string) (*image.Image, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	img, _, err := image.Decode(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return &img, nil
+}
+
+type Result struct {
+	IsAuth bool
+	Image  string
+}
+
+func VerifiedHandler(DB *db.MongoDB, input *validator.ValidateRecognize) ([]Result, error) {
 	cursor, err := DB.DatasetCollectionName.Find(context.Background(), map[string]interface{}{
 		"UserID": input.UserID,
 	})
 
 	if err != nil {
-		return &input.Image
+		return nil, err
 	}
 
-	var results []collection.Dataset
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		return &input.Image
+	var datasets []collection.Dataset
+	if err = cursor.All(context.TODO(), &datasets); err != nil {
+		return nil, err
 	}
 
-	facesDescriptor := lo.Map(results, func(item collection.Dataset, _ int) recognizer.Data {
+	facesDescriptor := lo.Map(datasets, func(item collection.Dataset, _ int) recognizer.Data {
 		return recognizer.Data{
 			Descriptor: item.Descriptor,
 			Id:         item.UserID,
 		}
 	})
-	b64data := strings.Split(input.Image, "base64,")[1]
-	isAuth, err := faceCustom.RecognizeFace(facesDescriptor, b64data)
 
-	fmt.Println(isAuth)
-	if err != nil {
-		return &input.Image
-	}
+	var results []Result
+	promise.ParallelWithArr(lo.Map(input.Images, func(item string, _ int) func() {
+		return func() {
+			imageFromUrl, err := GetImageFromURL(item)
+			if err != nil {
+				results = append(results, Result{
+					Image: item,
+				})
+				return
+			}
 
-	if isAuth != nil && *isAuth {
-		imageVerified, err := AddVerifiedImage(b64data)
-		if err != nil {
-			return &input.Image
+			b64data, err := commonUtils.ImageToBase64(*imageFromUrl)
+			if err != nil {
+				results = append(results, Result{
+					Image: item,
+				})
+				return
+			}
+
+			data, err := faceCustom.RecognizeFace(facesDescriptor, b64data)
+			if err != nil {
+				results = append(results, Result{
+					Image: item,
+				})
+				return
+			}
+
+			fmt.Println("data::", *data)
+
+			results = append(results, Result{
+				IsAuth: *data,
+				Image:  item,
+			})
 		}
+	}))
 
-		base64Image, err := commonUtils.ImageToBase64(imageVerified)
-		if err != nil {
-			return &input.Image
-		}
-
-		result := "data:image/jpeg;base64," + base64Image
-		return &result
-	}
-
-	return &input.Image
-}
-
-func AddVerifiedImage(images string) (image.Image, error) {
-	var (
-		VerifiedImagePath = path.GetBasepath() + "/public/verified.jpg"
-	)
-
-	img, err := commonUtils.Base64ToImage(images)
-	if err != nil {
-		return nil, err
-	}
-	Height := img.Bounds().Max.Y
-	Width := img.Bounds().Max.X
-
-	dc := gg.NewContext(Width, Height)
-	dc.DrawImage(img, 0, 0)
-
-	verified, err := GetImageFromPath(VerifiedImagePath)
-	if err != nil {
-		panic(err)
-	}
-
-	verifiedHeight := (*verified).Bounds().Max.Y
-	verifiedWidth := (*verified).Bounds().Max.X
-
-	verifiedDc := gg.NewContext(verifiedWidth, verifiedHeight)
-	verifiedDc.Scale(0.86, 0.86)
-	verifiedDc.DrawImage(*verified, 0, 0)
-
-	dc.DrawImage(verifiedDc.Image(), Width-340, Height-80)
-
-	return dc.Image(), nil
+	return results, nil
 }

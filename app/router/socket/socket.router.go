@@ -21,5 +21,5 @@ func CreateRouter(app fiber.Router) {
 	// 	return fiber.ErrUpgradeRequired
 	// })
 
-	app.Get("/ws-recognize", WsRecognize)
+	// app.Get("/ws-recognize", WsRecognize)
 }

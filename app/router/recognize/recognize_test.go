@@ -13,17 +13,13 @@ func Test(t *testing.T) {
 		t.Error(err)
 	}
 
-	imageBase64, err := commonUtils.ReadImageFromFile("./image.jpg")
-	if err != nil {
-		t.Error(err)
-	}
-
-	image := VerifiedHandler(DB, &validator.ValidateRecognize{
-		UserID: "65039bc7c0691e1ea988dd05",
-		Image:  *imageBase64,
+	images, err := VerifiedHandler(DB, &validator.ValidateRecognize{
+		UserID: "652933ebbdce4daaad99d5af",
+		Images: []string{
+			"http://res.cloudinary.com/finder-next/image/upload/v1699450821/finder/ums1wqt5fymyu2tadc8l.jpg",
+		},
 	})
 
-	if err = commonUtils.WriteImageToFile("./image_verified.jpg", *image); err != nil {
-		t.Error(err)
-	}
+	commonUtils.PrintJSON(images)
+
 }
