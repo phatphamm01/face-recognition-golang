@@ -9,4 +9,4 @@ services:
     ports:
       # - "22:22"  # Sửa các cổng theo dự án của bạn
       - "3008:3008"
-    command: ./main
+    command: ["./main"]

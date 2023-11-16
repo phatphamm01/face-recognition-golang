@@ -6,6 +6,7 @@ import (
 	"face-recognition-golang/db"
 	"face-recognition-golang/middleware"
 	"face-recognition-golang/validator"
+	"fmt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -52,8 +53,9 @@ func CreateRouter(app fiber.Router) {
 				"data":   err.Error(),
 			})
 		}
-
-		_, err = http.Post("https://finder.sohe.in//api/v1/images/verified", "application/json", bytes.NewBuffer(bodyToByte))
+		fmt.Println("start call:", string(bodyToByte))
+		_, err = http.Post("https://finder.sohe.in/api/v1/images/verified", "application/json", bytes.NewBuffer(bodyToByte))
+		fmt.Println("end call", err)
 
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
