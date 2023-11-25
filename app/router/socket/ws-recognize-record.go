@@ -128,22 +128,26 @@ func processImages(ctx context.Context, c *websocket.Conn, imageQueue *ImageQueu
 				}
 			}
 
-			imageAfterRecognize := map[string]interface{}{
-				"event":     "IMAGE_AFTER_RECOGNIZE",
-				"image":     detectAndDrawRectangles.Image,
-				"faceTotal": detectAndDrawRectangles.FaceTotal,
+			if constants.FacesInstance.Users[*userId] != nil {
+				imageAfterRecognize := map[string]interface{}{
+					"event":     "IMAGE_AFTER_RECOGNIZE",
+					"image":     detectAndDrawRectangles.Image,
+					"faceTotal": detectAndDrawRectangles.FaceTotal,
+					"progress":  len(constants.FacesInstance.Users[*userId].Data),
+				}
+
+				imageAfterRecognizeJSON, err := json.Marshal(imageAfterRecognize)
+				if err != nil {
+					log.Println("marshal:", err)
+
+				}
+
+				err = c.WriteMessage(websocket.TextMessage, imageAfterRecognizeJSON)
+				if err != nil {
+					log.Println("write:", err)
+				}
 			}
 
-			imageAfterRecognizeJSON, err := json.Marshal(imageAfterRecognize)
-			if err != nil {
-				log.Println("marshal:", err)
-
-			}
-
-			err = c.WriteMessage(websocket.TextMessage, imageAfterRecognizeJSON)
-			if err != nil {
-				log.Println("write:", err)
-			}
 		}
 	}
 }

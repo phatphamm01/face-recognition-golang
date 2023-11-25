@@ -5,6 +5,8 @@ import (
 	"face-recognition-golang/libs/recognizer"
 )
 
+const MAX_SIZE = 100
+
 var FacesInstance = faceCustom.Faces{
 	Users: map[string]*faceCustom.Face{},
 }
