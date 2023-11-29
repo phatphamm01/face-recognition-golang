@@ -17,7 +17,7 @@ type MongoDB struct {
 var Client *MongoDB
 
 func NewMongoDB() (*MongoDB, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://34.143.159.142:27018")
+	clientOptions := options.Client().ApplyURI("mongodb://giangnt:giangntxpower@34.143.159.142:27018/dating?authSource=admin")
 
 	// Kết nối đến MongoDB
 	client, err := mongo.Connect(context.Background(), clientOptions)
