@@ -1,10 +1,9 @@
-version: '3'
+version: "3"
 services:
   myapp:
     build:
       context: .
       dockerfile: Dockerfile
-    image: phatphamm01/face-recognition-golang:latest
     container_name: face-recognition-golang
     ports:
       # - "22:22"  # Sửa các cổng theo dự án của bạn
