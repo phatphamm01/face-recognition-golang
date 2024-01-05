@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -23,7 +22,6 @@ import (
 LoadImage Load an image from file
 */
 func (_this *Recognizer) LoadImage(Base64 string) (image.Image, error) {
-	fmt.Println(Base64[:100])
 	reader := base64.NewDecoder(base64.StdEncoding, bytes.NewBufferString(Base64))
 
 	img, _, err := image.Decode(reader)

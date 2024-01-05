@@ -98,6 +98,20 @@ func ImageToBase64(image image.Image) (string, error) {
 	return base64Image, nil
 }
 
+func ImageToCursorBase64(image image.Image) (*string, error) {
+	var buffer bytes.Buffer
+
+	encoder := base64.NewEncoder(base64.StdEncoding, &buffer)
+	if err := jpeg.Encode(encoder, image, nil); err != nil {
+		return nil, err
+	}
+
+	encoder.Close()
+	base64Image := buffer.String()
+
+	return &base64Image, nil
+}
+
 func Base64ToImage(base64Image string) (image.Image, error) {
 	reader := base64.NewDecoder(base64.StdEncoding, bytes.NewReader([]byte(base64Image)))
 	m, _, err := image.Decode(reader)

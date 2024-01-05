@@ -60,24 +60,15 @@ func DetectAndDrawRectangles(inputImage []byte) (*DetectFace, error) {
 			return nil, err
 		}
 
-		croppedMat, err = gocv.ImageToMatRGB(croppedImg)
+		croppedImageBytes, err = commonUtils.ImageToCursorBase64(croppedImg)
+
 		if err != nil {
 			return nil, err
 		}
-
-		croppedImageBytes, err = MatToString(croppedMat)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	resultImage, err := MatToString(mat)
-	if err != nil {
-		return nil, err
 	}
 
 	return &DetectFace{
-		Image:     *resultImage,
+		Image:     "",
 		FaceTotal: len(rects),
 		FaceImage: croppedImageBytes,
 	}, nil

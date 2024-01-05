@@ -78,16 +78,16 @@ func processImages(ctx context.Context, c *websocket.Conn, imageQueue *ImageQueu
 				isDone := constants.FacesInstance.AddFace(*userId, *detectAndDrawRectangles.FaceImage)
 
 				if isDone {
-					stopMessage := map[string]string{
-						"event": "DONE",
+					processingMessage := map[string]string{
+						"event": "PROCESSING",
 					}
-					stopMessageJSON, err := json.Marshal(stopMessage)
+					processingMessageJSON, err := json.Marshal(processingMessage)
 					if err != nil {
 						log.Println("marshal:", err)
 						break
 					}
 
-					err = c.WriteMessage(websocket.TextMessage, stopMessageJSON)
+					err = c.WriteMessage(websocket.TextMessage, processingMessageJSON)
 					if err != nil {
 						log.Println("write:", err)
 						break
@@ -115,21 +115,34 @@ func processImages(ctx context.Context, c *websocket.Conn, imageQueue *ImageQueu
 					objID, _ := primitive.ObjectIDFromHex(*userId)
 					filter := bson.M{"_id": objID}
 					update := bson.M{"$set": bson.M{"isVerifiedFace": true}}
-					res, err := db.Client.DB.Collection("users").UpdateOne(context.Background(), filter, update)
+					_, err = db.Client.DB.Collection("users").UpdateOne(context.Background(), filter, update)
 					if err != nil {
 						fmt.Println(err)
 						break
 					}
 
-					fmt.Println(res)
+					stopMessage := map[string]string{
+						"event": "DONE",
+					}
+					stopMessageJSON, err := json.Marshal(stopMessage)
+					if err != nil {
+						log.Println("marshal:", err)
+						break
+					}
+
+					err = c.WriteMessage(websocket.TextMessage, stopMessageJSON)
+					if err != nil {
+						log.Println("write:", err)
+						break
+					}
 					constants.FacesInstance.Users[*userId] = nil
 				}
 			}
 
 			if constants.FacesInstance.Users[*userId] != nil {
 				imageAfterRecognize := map[string]interface{}{
-					"event":     "IMAGE_AFTER_RECOGNIZE",
-					"image":     detectAndDrawRectangles.Image,
+					"event": "IMAGE_AFTER_RECOGNIZE",
+					// "image":     detectAndDrawRectangles.Image,
 					"faceTotal": detectAndDrawRectangles.FaceTotal,
 					"progress":  len(constants.FacesInstance.Users[*userId].Data),
 				}

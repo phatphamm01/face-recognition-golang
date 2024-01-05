@@ -110,6 +110,9 @@ func (_this *Recognizer) AddImageToDataset(Path string, Id string) error {
 	f.Id = Id
 	f.Descriptor = faces[0].Descriptor
 
+	fmt.Println("===========================")
+	fmt.Println("face: ===", f)
+	fmt.Println("===========================")
 	_this.Dataset = append(_this.Dataset, f)
 
 	return nil

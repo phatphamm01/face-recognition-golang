@@ -17,7 +17,7 @@ type Faces struct {
 	Users map[string]*Face
 }
 
-const MAX_SIZE = 100
+const MAX_SIZE = 50
 
 func (f *Faces) AddFace(username string, image string) bool {
 	if f.Users[username] == nil {
