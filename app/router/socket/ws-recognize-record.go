@@ -21,7 +21,7 @@ import (
 type ImageQueue struct {
 	Images  []string
 	Mutex   sync.Mutex
-	MaxSize int // Số lượng tối đa ảnh được lưu trữ
+	MaxSize int
 }
 
 func NewImageQueue(maxSize int) *ImageQueue {
@@ -35,7 +35,6 @@ func (q *ImageQueue) AddImage(imagePath string) {
 	defer q.Mutex.Unlock()
 	q.Images = append(q.Images, imagePath)
 	if len(q.Images) > q.MaxSize {
-		// Nếu số lượng ảnh vượt quá giới hạn, loại bỏ ảnh cũ nhất
 		q.Images = q.Images[1:]
 	}
 }
@@ -55,7 +54,6 @@ func processImages(ctx context.Context, c *websocket.Conn, imageQueue *ImageQueu
 	for {
 		select {
 		case <-ctx.Done():
-			// User disconnect, stop processing images
 			fmt.Println("User disconnected, stopping image processing")
 			return
 		default:

@@ -29,16 +29,13 @@ func MatToString(mat gocv.Mat) (*string, error) {
 }
 
 func DetectAndDrawRectangles(inputImage []byte) (*DetectFace, error) {
-	// Load the classifier
 	classifier := gocv.NewCascadeClassifier()
 	defer classifier.Close()
 
-	//"./public/models/haarcascade_frontalface_alt.xml"
 	if !classifier.Load(fmt.Sprintf("%s/public/models/haarcascade_frontalface_alt.xml", path.GetBasepath())) {
 		return nil, fmt.Errorf("Error reading cascade file")
 	}
 
-	// Load the input image
 	img, _, err := image.Decode(bytes.NewReader(inputImage))
 	if err != nil {
 		return nil, err
@@ -50,7 +47,6 @@ func DetectAndDrawRectangles(inputImage []byte) (*DetectFace, error) {
 	}
 	defer mat.Close()
 
-	// Detect faces
 	rects := classifier.DetectMultiScale(mat)
 
 	var croppedImageBytes *string

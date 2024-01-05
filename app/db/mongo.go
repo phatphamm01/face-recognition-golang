@@ -17,7 +17,7 @@ type MongoDB struct {
 var Client *MongoDB
 
 func NewMongoDB() (*MongoDB, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://giangnt:giangntxpower@35.247.129.23:27018/dating?authSource=admin")
+	clientOptions := options.Client().ApplyURI("mongodb://giangnt:giangntxpower@35.247.129.23:27018/dating_clone?authSource=admin")
 
 	// Kết nối đến MongoDB
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -25,7 +25,7 @@ func NewMongoDB() (*MongoDB, error) {
 		return nil, err
 	}
 
-	clientDB := client.Database("dating")
+	clientDB := client.Database("dating_clone")
 	datasetCollectionName := clientDB.Collection(string(collection.DatasetCollectionName))
 
 	return &MongoDB{
